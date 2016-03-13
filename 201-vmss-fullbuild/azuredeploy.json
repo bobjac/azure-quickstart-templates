@@ -541,7 +541,7 @@
 	    "location":"[parameters('resourceLocation')]",
 	    "apiVersion":"[variables('apiVersion')]",
 	    "dependsOn":[
-		"[concat('Microsoft.Network/publicIPAddresses/', variables('spaUserIPAddressName'))]"
+		"[concat('Microsoft.Network/publicIPAddresses/', variables('spaUserPublicIPAddressName'))]"
 	    ],
 	    "properties":{
 		"frontendIPConfigurations":[
@@ -581,7 +581,7 @@
 	    "location":"[parameters('resourceLocation')]",
 	    "apiVersion":"[variables('apiVersion')]",
 	    "dependsOn":[
-		"[concat('Microsoft.Network/publicIPAddresses/', variables('spaAdminIPAddressName'))]"
+		"[concat('Microsoft.Network/publicIPAddresses/', variables('spaAdminPublicIPAddressName'))]"
 	    ],
 	    "properties":{
 		"frontendIPConfigurations":[
@@ -621,7 +621,7 @@
 	    "location":"[parameters('resourceLocation')]",
 	    "apiVersion":"[variables('apiVersion')]",
 	    "dependsOn":[
-		"[concat('Microsoft.Network/publicIPAddresses/', variables('spaConsumerIPAddressName'))]"
+		"[concat('Microsoft.Network/publicIPAddresses/', variables('spaConsumerPublicIPAddressName'))]"
 	    ],
 	    "properties":{
 		"frontendIPConfigurations":[
@@ -661,7 +661,7 @@
 	    "location":"[parameters('resourceLocation')]",
 	    "apiVersion":"[variables('apiVersion')]",
 	    "dependsOn":[
-		"[concat('Microsoft.Network/publicIPAddresses/', variables('spaLoginIPAddressName'))]"
+		"[concat('Microsoft.Network/publicIPAddresses/', variables('spaLoginPublicIPAddressName'))]"
 	    ],
 	    "properties":{
 		"frontendIPConfigurations":[
