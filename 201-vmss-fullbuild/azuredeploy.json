@@ -1,0 +1,1405 @@
+{
+    "$schema":"http://schema.management.azure.com/schemas/2015-01-01-preview/deploymentTemplate.json",
+    "contentVersion":"1.0.0.0",
+    "parameters":{
+	"resourceLocation":{
+	    "type":"string",
+	    "allowedValues":[
+		"East US",
+		"East US 2",
+		"West US",
+		"Central US",
+		"South Central US",
+		"North Central US",
+		"North Europe",
+		"West Europe",
+		"Southeast Asia",
+		"East Asia",
+		"Japan West",
+		"Japan East",
+		"Brazil South",
+		"Australia East",
+		"Australia Southeast"
+	    ],
+	    "metadata":{
+		"description":"Azure region where all resources will be deployed. This is distinct from resource group location."
+	    }
+	},
+	"vmSku":{
+	    "type":"string",
+	    "defaultValue":"Standard_A1",
+	    "metadata":{
+		"description":"Size of VMs in the VM Scale Set."
+	    }
+	},
+	"windowsOSVersion": {
+	    "type": "string",
+	    "defaultValue": "2012-R2-Datacenter",
+	    "allowedValues": [
+		"2008-R2-SP1",
+		"2012-Datacenter",
+		"2012-R2-Datacenter"
+	    ],
+	    "metadata": {
+		"description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version. Allowed values: 2008-R2-SP1, 2012-Datacenter, 2012-R2-Datacenter."
+	    }
+	},
+	"vmssName":{
+	    "type":"string",
+	    "metadata":{
+		"description":"String used as a base for naming resources (9 characters or less). A hash is prepended to this string for some resources, and resource-specific information is appended."
+	    },
+	    "maxLength":9
+	},
+    
+    "spaVmssName":{
+        "type":"string",
+        "metadata":{
+            "description":"String used name the Spa Vm Scale Set"
+        },
+        "mexLength":9
+    },
+    "spaUserVmssName":{
+        "type":"string",
+        "metadata":{
+            "description":"String used name the Spa Vm Scale Set"
+        },
+        "mexLength":9
+    },
+    "spaAdminVmssName":{
+        "type":"string",
+        "metadata":{
+            "description":"String used name the Spa Admin Vm Scale Set"
+        },
+        "mexLength":9
+    },
+    "spaConsumerPortalVmssName":{
+        "type":"string",
+        "metadata":{
+            "description":"String used name the Spa Consumer Portal Vm Scale Set"
+        },
+        "mexLength":9
+    },
+    "spaLoginVmssName":{
+        "type":"string",
+        "metadata":{
+            "description":"String used name the Spa Login Vm Scale Set"
+        },
+        "mexLength":9
+    },
+    
+	"instanceCount":{
+	    "type":"int",
+	    "metadata":{
+		"description":"Number of VM instances (100 or less)."
+	    },
+	    "maxValue":100
+	},
+	"adminUsername":{
+	    "type":"string",
+	    "metadata":{
+		"description":"Admin username on all VMs."
+	    }
+	},
+	"adminPassword":{
+	    "type":"securestring",
+	    "metadata":{
+		"description":"Admin password on all VMs."
+	    }
+	}
+    },
+    "variables":{
+	"apiVersion":"2015-06-15",
+	"storageAccountType":"Standard_LRS",
+	"saCount":5,
+	"namingInfix": "[toLower(parameters('vmssName'))]",
+	
+    "newStorageAccountSuffix":"[concat(variables('namingInfix'), 'sa')]",
+	"uniqueStringArray":[
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('newStorageAccountSuffix'), '0')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('newStorageAccountSuffix'), '1')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('newStorageAccountSuffix'), '2')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('newStorageAccountSuffix'), '3')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('newStorageAccountSuffix'), '4')))]"
+	],
+    
+    "spapublicStorageAccountSuffix": "[concat(variables('newStorageAccountSuffix'), 'spapublic')]",
+    "sapublicuniqueStringArray":[
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spapublicStorageAccountSuffix'), '0')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spapublicStorageAccountSuffix'), '1')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spapublicStorageAccountSuffix'), '2')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spapublicStorageAccountSuffix'), '3')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spapublicStorageAccountSuffix'), '4')))]"
+	],
+    
+    "spaUserStorageAccountSuffix": "[concat(variables('newStorageAccountSuffix'), 'spauser')]",
+    "saUseruniqueStringArray":[
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaUserStorageAccountSuffix'), '0')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaUserStorageAccountSuffix'), '1')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaUserStorageAccountSuffix'), '2')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaUserStorageAccountSuffix'), '3')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaUserStorageAccountSuffix'), '4')))]"
+	],
+    
+    "spaAdminStorageAccountSuffix": "[concat(variables('newStorageAccountSuffix'), 'spadmin')]",
+    "saAdminuniqueStringArray":[
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaAdminStorageAccountSuffix'), '0')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaAdminStorageAccountSuffix'), '1')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaAdminStorageAccountSuffix'), '2')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaAdminStorageAccountSuffix'), '3')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaAdminStorageAccountSuffix'), '4')))]"
+	],
+    
+    "spaConsumerStorageAccountSuffix": "[concat(variables('newStorageAccountSuffix'), 'spconsumer')]",
+    "saConsumeruniqueStringArray":[
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaConsumerStorageAccountSuffix'), '0')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaConsumerStorageAccountSuffix'), '1')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaConsumerStorageAccountSuffix'), '2')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaConsumerStorageAccountSuffix'), '3')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaConsumerStorageAccountSuffix'), '4')))]"
+	],
+    
+    "spaLoginStorageAccountSuffix": "[concat(variables('newStorageAccountSuffix'), 'splogin')]",
+    "saLoginuniqueStringArray":[
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaLoginStorageAccountSuffix'), '0')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaLoginStorageAccountSuffix'), '1')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaLoginStorageAccountSuffix'), '2')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaLoginStorageAccountSuffix'), '3')))]",
+	    "[concat(uniqueString(concat(resourceGroup().id, variables('spaLoginStorageAccountSuffix'), '4')))]"
+	],
+    
+	
+    "vhdContainerName":"[concat(variables('namingInfix'), 'vhd')]",
+	"osDiskName":"[concat(variables('namingInfix'), 'osdisk')]",
+	"addressPrefix":"10.0.0.0/16",
+	"subnetPrefix":"10.0.0.0/24",
+	
+    "virtualNetworkName":"[concat(variables('namingInfix'), 'vnet')]",
+    
+	"publicIPAddressName":"[concat(variables('namingInfix'), 'pip')]",
+    "spapublicIPAddressName":"[concat(variables('namingInfix'), 'spapip')]",
+    "spaUserpublicIPAddressName":"[concat(variables('namingInfix'), 'spauserpip')]",
+    "spaAdminpublicIPAddressName":"[concat(variables('namingInfix'), 'spaadminpip')]",
+    "spaConsumerpublicIPAddressName":"[concat(variables('namingInfix'), 'spaconsumerpip')]",
+    "spaLoginpublicIPAddressName":"[concat(variables('namingInfix'), 'spaloginpip')]",
+	
+    "loadBalancerName":"[concat(variables('namingInfix'), 'lb')]",
+    "spapublicLoadBalancerName":"[concat(variables('namingInfix'), 'spapublb')]",
+    "spaUserLoadBalancerName":"[concat(variables('namingInfix'), 'spauserlb')]",
+    "spaAdminLoadBalancerName":"[concat(variables('namingInfix'), 'spaadminlb')]",
+    "spaConsumerLoadBalancerName":"[concat(variables('namingInfix'), 'spaconsumerlb')]",
+    "spaLoginLoadBalancerName":"[concat(variables('namingInfix'), 'spaloginlb')]",
+    
+    "subnetName":"[concat(variables('namingInfix'), 'subnet')]",
+    "spapublicSubnetName":"[concat(variables('namingInfix'), 'spapubsubnet')]",
+    "spaUserSubnetName":"[concat(variables('namingInfix'), 'spausersubnet')]",
+    "spaAdminSubnetName":"[concat(variables('namingInfix'), 'spaadminsubnet')]",
+    "spaCosumerSubnetName":"[concat(variables('namingInfix'), 'spaconsumersubnet')]",
+    "spaLoginSubnetName":"[concat(variables('namingInfix'), 'spaloginsubnet')]",
+    
+	"publicIPAddressID":"[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]",
+    "spapublicIPAddressID":"[resourceId('Microsoft.Network/publicIPAddresses',variables('spapublicIPAddressName'))]",
+    "spaAdminpublicIPAddressID":"[resourceId('Microsoft.Network/publicIPAddresses',variables('spaAdminpublicIPAddressName'))]",
+    "spaConsumerpublicIPAddressID":"[resourceId('Microsoft.Network/publicIPAddresses',variables('spaConsumerpublicIPAddressName'))]",
+	"spaLoginpublicIPAddressID":"[resourceId('Microsoft.Network/publicIPAddresses',variables('spaLoginpublicIPAddressName'))]",
+    
+    "lbID":"[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerName'))]",
+    "spapublicLoadBalancerId":"[resourceId('Microsoft.Network/loadBalancers',variables('spapublicLoadBalancerName'))]",
+    "spaUserLoadBalancerId":"[resourceId('Microsoft.Network/loadBalancers',variables('spaUserLoadBalancerName'))]",
+    "spaAdminLoadBalancerId":"[resourceId('Microsoft.Network/loadBalancers',variables('spaAdminLoadBalancerName'))]",
+    "spaConsumerLoadBalancerId":"[resourceId('Microsoft.Network/loadBalancers',variables('spaConsumerLoadBalancerName'))]",
+    "spaLoginLoadBalancerId":"[resourceId('Microsoft.Network/loadBalancers',variables('spaLoginLoadBalancerName'))]",
+    
+	"natPoolName":"[concat(variables('namingInfix'), 'natpool')]",
+    "spapublicNatPoolName":"[concat(variables('namingInfix'), 'spapublicnatpool')]",
+    "spaUserNatPoolName":"[concat(variables('namingInfix'), 'spaUsernatpool')]",
+    "spaAdminNatPoolName":"[concat(variables('namingInfix'), 'spaAdminnatpool')]",
+    "spaConsumerNatPoolName":"[concat(variables('namingInfix'), 'spaConsumernatpool')]",
+    "spaLoginNatPoolName":"[concat(variables('namingInfix'), 'spaLoginnatpool')]",
+    
+	"bePoolName":"[concat(variables('namingInfix'), 'bepool')]",
+    "spapublicbePoolName":"[concat(variables('namingInfix'), 'spapublicbepool')]",
+    "spaUserbePoolName":"[concat(variables('namingInfix'), 'spaUserbepool')]",
+    "spaAdminbePoolName":"[concat(variables('namingInfix'), 'spaAdminbepool')]",
+    "spaConsumerbePoolName":"[concat(variables('namingInfix'), 'spaConsumerbepool')]",
+    "spaLoginbePoolName":"[concat(variables('namingInfix'), 'spaLoginbepool')]",
+    
+	"natStartPort":50000,
+	"natEndPort":50099,
+	"natBackendPort":3389,
+    
+	"nicName":"[concat(variables('namingInfix'), 'nic')]",
+	"spapublicNicName":"[concat(variables('namingInfix'), 'spapublicnic')]",
+    "spaUserNicName":"[concat(variables('namingInfix'), 'spaUsernic')]",
+    "spaAdminNicName":"[concat(variables('namingInfix'), 'spaAdminnic')]",
+    "spaConsumerNicName":"[concat(variables('namingInfix'), 'spaConsumernic')]",
+    "spaLoginNicName":"[concat(variables('namingInfix'), 'spaLoginnic')]",
+    
+    "ipConfigName":"[concat(variables('namingInfix'), 'ipconfig')]",
+    "spapublicIpConfigName":"[concat(variables('namingInfix'), 'spapublicipconfig')]",
+    "spaUserIpConfigName":"[concat(variables('namingInfix'), 'spaUseripconfig')]",
+    "spaAdminIpConfigName":"[concat(variables('namingInfix'), 'spaAdminipconfig')]",
+    "spaConsumerIpConfigName":"[concat(variables('namingInfix'), 'spaConsumeripconfig')]",
+    "spaLoginIpConfigName":"[concat(variables('namingInfix'), 'spaLoginipconfig')]",
+    
+    "frontEndIPConfigID":"[concat(variables('lbID'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
+	"spapublicFrontEndIPConfigID":"[concat(variables('spapublicLoadBalancerId'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
+    "spaUserFrontEndIPConfigID":"[concat(variables('spaUserLoadBalancerId'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
+    "spaAdminFrontEndIPConfigID":"[concat(variables('spaAdminLoadBalancerId'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
+    "spaConsumerFrontEndIPConfigID":"[concat(variables('spaConsumerLoadBalancerId'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
+    "spaLoginFrontEndIPConfigID":"[concat(variables('spaLoginLoadBalancerId'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
+    
+    "spapublicVssName": "spapublicVss",
+    "spaUserVssName": "spaUserVss",
+    "spaAdminVss": "spaAdminVss",
+    "spaConsumerVss": "spaConsumerVss",
+    "spaLoginVss": "spaLoginVss",
+    
+    
+    "osType":{
+	    "publisher":"MicrosoftWindowsServer",
+	    "offer":"WindowsServer",
+	    "sku":"[parameters('windowsOSVersion')]",
+	    "version":"latest"
+	},
+	"imageReference":"[variables('osType')]",
+	"diagnosticsStorageAccountName": "[concat(uniqueString(concat(resourceGroup().id, variables('newStorageAccountSuffix'))), variables('newStorageAccountSuffix'))]",
+	"diagnosticsStorageAccountResourceGroup": "[resourceGroup().name]",
+	
+    "accountid": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',variables('diagnosticsStorageAccountResourceGroup'),'/providers/','Microsoft.Storage/storageAccounts/', variables('diagnosticsStorageAccountName'))]",
+	"wadlogs": "<WadCfg> <DiagnosticMonitorConfiguration overallQuotaInMB=\"4096\" xmlns=\"http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration\"> <DiagnosticInfrastructureLogs scheduledTransferLogLevelFilter=\"Error\"/> <WindowsEventLog scheduledTransferPeriod=\"PT1M\" > <DataSource name=\"Application!*[System[(Level = 1 or Level = 2)]]\" /> <DataSource name=\"Security!*[System[(Level = 1 or Level = 2)]]\" /> <DataSource name=\"System!*[System[(Level = 1 or Level = 2)]]\" /></WindowsEventLog>",
+	"wadperfcounters1": "<PerformanceCounters scheduledTransferPeriod=\"PT1M\"><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% Processor Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU utilization\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% Privileged Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU privileged time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% User Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU user time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor Information(_Total)\\Processor Frequency\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"CPU frequency\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\System\\Processes\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Processes\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Process(_Total)\\Thread Count\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Threads\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Process(_Total)\\Handle Count\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Handles\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\% Committed Bytes In Use\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Memory usage\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Available Bytes\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory available\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Committed Bytes\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory committed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Commit Limit\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory commit limit\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active time\" locale=\"en-us\"/></PerformanceCounterConfiguration>",
+	"wadperfcounters2": "<PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Read Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active read time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Write Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active write time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Transfers/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Reads/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk read operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Writes/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk write operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Read Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk read speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Write Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk write speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\LogicalDisk(_Total)\\% Free Space\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk free space (percentage)\" locale=\"en-us\"/></PerformanceCounterConfiguration></PerformanceCounters>",
+	"wadcfgxstart": "[concat(variables('wadlogs'),variables('wadperfcounters1'),variables('wadperfcounters2'),'<Metrics resourceId=\"')]",
+	"wadmetricsresourceid": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',resourceGroup().name ,'/providers/','Microsoft.Compute/virtualMachineScaleSets/',variables('namingInfix'))]",
+	"wadcfgxend": "[concat('\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>')]"
+    },
+    "resources":[
+	{
+	    "type":"Microsoft.Network/virtualNetworks",
+	    "name":"[variables('virtualNetworkName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "properties":{
+		"addressSpace":{
+		    "addressPrefixes":[
+			"[variables('addressPrefix')]"
+		    ]
+		},
+		"subnets":[
+		    {
+			"name":"[variables('subnetName')]",
+			"properties":{
+			    "addressPrefix":"[variables('subnetPrefix')]"
+			}
+		    }
+		]
+	    }
+	},
+    {
+	    "type":"Microsoft.Storage/storageAccounts",
+	    "name":"[concat(variables('uniqueStringArray')[copyIndex()], variables('newStorageAccountSuffix'))]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "copy":{
+		    "name":"storageLoop",
+		    "count":"[variables('saCount')]"
+	    },
+	    "properties":{
+		"accountType":"[variables('storageAccountType')]"
+	    }
+	},
+    {
+	    "type":"Microsoft.Storage/storageAccounts",
+	    "name":"[concat(variables('uniqueStringArray')[copyIndex()], variables('newStorageAccountSuffix'), spapublic)]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "copy":{
+		    "name":"storageLoop",
+		    "count":"[variables('saCount')]"
+	    },
+	    "properties":{
+		"accountType":"[variables('storageAccountType')]"
+	    }
+	},
+    {
+	    "type":"Microsoft.Storage/storageAccounts",
+	    "name":"[concat(variables('uniqueStringArray')[copyIndex()], variables('newStorageAccountSuffix'), sauser)]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "copy":{
+		    "name":"storageLoop",
+		    "count":"[variables('saCount')]"
+	    },
+	    "properties":{
+		"accountType":"[variables('storageAccountType')]"
+	    }
+	},
+    {
+	    "type":"Microsoft.Storage/storageAccounts",
+	    "name":"[concat(variables('uniqueStringArray')[copyIndex()], variables('newStorageAccountSuffix'), saadmin)]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "copy":{
+		    "name":"storageLoop",
+		    "count":"[variables('saCount')]"
+	    },
+	    "properties":{
+		"accountType":"[variables('storageAccountType')]"
+	    }
+	},
+    {
+	    "type":"Microsoft.Storage/storageAccounts",
+	    "name":"[concat(variables('uniqueStringArray')[copyIndex()], variables('newStorageAccountSuffix'), saconsumer)]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "copy":{
+		    "name":"storageLoop",
+		    "count":"[variables('saCount')]"
+	    },
+	    "properties":{
+		"accountType":"[variables('storageAccountType')]"
+	    }
+	},
+    {
+	    "type":"Microsoft.Storage/storageAccounts",
+	    "name":"[concat(variables('uniqueStringArray')[copyIndex()], variables('newStorageAccountSuffix'), salogin)]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "copy":{
+		    "name":"storageLoop",
+		    "count":"[variables('saCount')]"
+	    },
+	    "properties":{
+		"accountType":"[variables('storageAccountType')]"
+	    }
+	},
+	{
+	    "type":"Microsoft.Storage/storageAccounts",
+	    "name":"[variables('diagnosticsStorageAccountName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "properties":{
+		"accountType":"[variables('storageAccountType')]"
+	    }
+	},
+	{
+	    "type":"Microsoft.Network/publicIPAddresses",
+	    "name":"[variables('publicIPAddressName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "properties":{
+		"publicIPAllocationMethod":"Dynamic",
+		"dnsSettings":{
+		    "domainNameLabel":"[variables('namingInfix')]"
+		}
+	    }
+	},
+    {
+	    "type":"Microsoft.Network/publicIPAddresses",
+	    "name":"[variables('spapublicIPAddressName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "properties":{
+		"publicIPAllocationMethod":"Dynamic",
+		"dnsSettings":{
+		    "domainNameLabel":"[variables('namingInfix')]"
+		}
+	    }
+	},
+    {
+	    "type":"Microsoft.Network/publicIPAddresses",
+	    "name":"[variables('spaUserpublicIPAddressName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "properties":{
+		"publicIPAllocationMethod":"Dynamic",
+		"dnsSettings":{
+		    "domainNameLabel":"[variables('namingInfix')]"
+		}
+	    }
+	},
+    {
+	    "type":"Microsoft.Network/publicIPAddresses",
+	    "name":"[variables('spaAdminpublicIPAddressName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "properties":{
+		"publicIPAllocationMethod":"Dynamic",
+		"dnsSettings":{
+		    "domainNameLabel":"[variables('namingInfix')]"
+		}
+	    }
+	},
+    {
+	    "type":"Microsoft.Network/publicIPAddresses",
+	    "name":"[variables('spaConsumerpublicIPAddressName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "properties":{
+		"publicIPAllocationMethod":"Dynamic",
+		"dnsSettings":{
+		    "domainNameLabel":"[variables('namingInfix')]"
+		}
+	    }
+	},
+    {
+	    "type":"Microsoft.Network/publicIPAddresses",
+	    "name":"[variables('spaLoginpublicIPAddressName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "properties":{
+		"publicIPAllocationMethod":"Dynamic",
+		"dnsSettings":{
+		    "domainNameLabel":"[variables('namingInfix')]"
+		}
+	    }
+	},
+	{
+	    "type":"Microsoft.Network/loadBalancers",
+	    "name":"[variables('loadBalancerName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "dependsOn":[
+		"[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]"
+	    ],
+	    "properties":{
+		"frontendIPConfigurations":[
+		    {
+			"name":"LoadBalancerFrontEnd",
+			"properties":{
+			    "publicIPAddress":{
+				"id":"[variables('publicIPAddressID')]"
+			    }
+			}
+		    }
+		],
+		"backendAddressPools":[
+		    {
+			"name":"[variables('bePoolName')]"
+		    }
+		],
+		"inboundNatPools":[
+		    {
+			"name":"[variables('natPoolName')]",
+			"properties":{
+			    "frontendIPConfiguration":{
+				"id":"[variables('frontEndIPConfigID')]"
+			    },
+			    "protocol":"tcp",
+			    "frontendPortRangeStart":"[variables('natStartPort')]",
+			    "frontendPortRangeEnd":"[variables('natEndPort')]",
+			    "backendPort":"[variables('natBackendPort')]"
+			}
+		    }
+		]
+	    }
+	},
+    {
+	    "type":"Microsoft.Network/loadBalancers",
+	    "name":"[variables('spapublicloadBalancerName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "dependsOn":[
+		"[concat('Microsoft.Network/publicIPAddresses/', variables('spapublicIPAddressName'))]"
+	    ],
+	    "properties":{
+		"frontendIPConfigurations":[
+		    {
+			"name":"LoadBalancerFrontEnd",
+			"properties":{
+			    "publicIPAddress":{
+				"id":"[variables('spapublicIPAddressID')]"
+			    }
+			}
+		    }
+		],
+		"backendAddressPools":[
+		    {
+			"name":"[variables('spapublicbePoolName')]"
+		    }
+		],
+		"inboundNatPools":[
+		    {
+			"name":"[variables('spapublicnatPoolName')]",
+			"properties":{
+			    "frontendIPConfiguration":{
+				"id":"[variables('spapublicfrontEndIPConfigID')]"
+			    },
+			    "protocol":"tcp",
+			    "frontendPortRangeStart":"[variables('natStartPort')]",
+			    "frontendPortRangeEnd":"[variables('natEndPort')]",
+			    "backendPort":"[variables('natBackendPort')]"
+			}
+		    }
+		]
+	    }
+	},
+    {
+	    "type":"Microsoft.Network/loadBalancers",
+	    "name":"[variables('spaUserloadBalancerName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "dependsOn":[
+		"[concat('Microsoft.Network/publicIPAddresses/', variables('spaUserIPAddressName'))]"
+	    ],
+	    "properties":{
+		"frontendIPConfigurations":[
+		    {
+			"name":"LoadBalancerFrontEnd",
+			"properties":{
+			    "publicIPAddress":{
+				"id":"[variables('spaUserIPAddressID')]"
+			    }
+			}
+		    }
+		],
+		"backendAddressPools":[
+		    {
+			"name":"[variables('spaUserbePoolName')]"
+		    }
+		],
+		"inboundNatPools":[
+		    {
+			"name":"[variables('spaUsernatPoolName')]",
+			"properties":{
+			    "frontendIPConfiguration":{
+				"id":"[variables('spaUserfrontEndIPConfigID')]"
+			    },
+			    "protocol":"tcp",
+			    "frontendPortRangeStart":"[variables('natStartPort')]",
+			    "frontendPortRangeEnd":"[variables('natEndPort')]",
+			    "backendPort":"[variables('natBackendPort')]"
+			}
+		    }
+		]
+	    }
+	},
+    {
+	    "type":"Microsoft.Network/loadBalancers",
+	    "name":"[variables('spaAdminloadBalancerName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "dependsOn":[
+		"[concat('Microsoft.Network/publicIPAddresses/', variables('spaAdminIPAddressName'))]"
+	    ],
+	    "properties":{
+		"frontendIPConfigurations":[
+		    {
+			"name":"LoadBalancerFrontEnd",
+			"properties":{
+			    "publicIPAddress":{
+				"id":"[variables('spaAdminIPAddressID')]"
+			    }
+			}
+		    }
+		],
+		"backendAddressPools":[
+		    {
+			"name":"[variables('spaAdminbePoolName')]"
+		    }
+		],
+		"inboundNatPools":[
+		    {
+			"name":"[variables('spaAdminnatPoolName')]",
+			"properties":{
+			    "frontendIPConfiguration":{
+				"id":"[variables('spaAdminfrontEndIPConfigID')]"
+			    },
+			    "protocol":"tcp",
+			    "frontendPortRangeStart":"[variables('natStartPort')]",
+			    "frontendPortRangeEnd":"[variables('natEndPort')]",
+			    "backendPort":"[variables('natBackendPort')]"
+			}
+		    }
+		]
+	    }
+	},
+    {
+	    "type":"Microsoft.Network/loadBalancers",
+	    "name":"[variables('spaConsumerloadBalancerName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "dependsOn":[
+		"[concat('Microsoft.Network/publicIPAddresses/', variables('spaConsumerIPAddressName'))]"
+	    ],
+	    "properties":{
+		"frontendIPConfigurations":[
+		    {
+			"name":"LoadBalancerFrontEnd",
+			"properties":{
+			    "publicIPAddress":{
+				"id":"[variables('spaConsumerIPAddressID')]"
+			    }
+			}
+		    }
+		],
+		"backendAddressPools":[
+		    {
+			"name":"[variables('spaConsumerbePoolName')]"
+		    }
+		],
+		"inboundNatPools":[
+		    {
+			"name":"[variables('spaConsumernatPoolName')]",
+			"properties":{
+			    "frontendIPConfiguration":{
+				"id":"[variables('spaConsumerfrontEndIPConfigID')]"
+			    },
+			    "protocol":"tcp",
+			    "frontendPortRangeStart":"[variables('natStartPort')]",
+			    "frontendPortRangeEnd":"[variables('natEndPort')]",
+			    "backendPort":"[variables('natBackendPort')]"
+			}
+		    }
+		]
+	    }
+	},
+    {
+	    "type":"Microsoft.Network/loadBalancers",
+	    "name":"[variables('spaLoginloadBalancerName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "dependsOn":[
+		"[concat('Microsoft.Network/publicIPAddresses/', variables('spaLoginIPAddressName'))]"
+	    ],
+	    "properties":{
+		"frontendIPConfigurations":[
+		    {
+			"name":"LoadBalancerFrontEnd",
+			"properties":{
+			    "publicIPAddress":{
+				"id":"[variables('spaLoginIPAddressID')]"
+			    }
+			}
+		    }
+		],
+		"backendAddressPools":[
+		    {
+			"name":"[variables('spaLoginbePoolName')]"
+		    }
+		],
+		"inboundNatPools":[
+		    {
+			"name":"[variables('spaLoginnatPoolName')]",
+			"properties":{
+			    "frontendIPConfiguration":{
+				"id":"[variables('spaLoginfrontEndIPConfigID')]"
+			    },
+			    "protocol":"tcp",
+			    "frontendPortRangeStart":"[variables('natStartPort')]",
+			    "frontendPortRangeEnd":"[variables('natEndPort')]",
+			    "backendPort":"[variables('natBackendPort')]"
+			}
+		    }
+		]
+	    }
+	},
+	{
+	    "type":"Microsoft.Compute/virtualMachineScaleSets",
+	    "name":"[variables('namingInfix')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "dependsOn":[
+		"storageLoop",
+		"[concat('Microsoft.Storage/storageAccounts/', variables('diagnosticsStorageAccountName'))]",
+		"[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]",
+		"[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+	    ],
+	    "sku":{
+		"name":"[parameters('vmSku')]",
+		"tier":"Standard",
+		"capacity":"[parameters('instanceCount')]"
+	    },
+	    "properties":{
+		"upgradePolicy":{
+		    "mode":"Manual"
+		},
+		"virtualMachineProfile":{
+		    "storageProfile":{
+			"osDisk":{
+			    "vhdContainers":[
+				"[concat('https://', variables('uniqueStringArray')[0], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('uniqueStringArray')[1], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('uniqueStringArray')[2], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('uniqueStringArray')[3], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('uniqueStringArray')[4], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]"
+			    ],
+			    "name":"[variables('osDiskName')]",
+			    "caching":"ReadOnly",
+			    "createOption":"FromImage"
+			},
+			"imageReference":"[variables('imageReference')]"
+		    },
+		    "osProfile":{
+			"computerNamePrefix":"[variables('namingInfix')]",
+			"adminUsername":"[parameters('adminUsername')]",
+			"adminPassword":"[parameters('adminPassword')]"
+		    },
+		    "networkProfile":{
+			"networkInterfaceConfigurations":[
+			    {
+				"name":"[variables('nicName')]",
+				"properties":{
+				    "primary":"true",
+				    "ipConfigurations":[
+					{
+					    "name":"[variables('ipConfigName')]",
+					    "properties":{
+						"subnet":{
+						    "id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'), '/subnets/', variables('subnetName'))]"
+						},
+						"loadBalancerBackendAddressPools":[
+						    {
+							"id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/backendAddressPools/', variables('bePoolName'))]"
+						    }
+						],
+						"loadBalancerInboundNatPools":[
+						    {
+							"id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/inboundNatPools/', variables('natPoolName'))]"
+						    }
+						]
+					    }
+					}
+				    ]
+				}
+			    }
+			]
+		    },
+		    "extensionProfile": {
+			"extensions" : [
+			    {
+				"name": "Microsoft.Insights.VMDiagnosticsSettings",
+				"properties": {
+				    "publisher": "Microsoft.Azure.Diagnostics",
+				    "type": "IaaSDiagnostics",
+				    "typeHandlerVersion": "1.5",
+				    "autoUpgradeMinorVersion": true,
+				    "settings": {
+					"xmlCfg": "[base64(concat(variables('wadcfgxstart'),variables('wadmetricsresourceid'),variables('wadcfgxend')))]",
+					"storageAccount": "[variables('diagnosticsStorageAccountName')]"
+				    },
+				    "protectedSettings": {
+					"storageAccountName": "[variables('diagnosticsStorageAccountName')]",
+					"storageAccountKey": "[listkeys(variables('accountid'), '2015-05-01-preview').key1]",
+					"storageAccountEndPoint": "https://core.windows.net"
+				    }
+				}
+			    }
+			]
+		    }
+		}
+	    }
+	},
+    
+    {
+	    "type":"Microsoft.Compute/virtualMachineScaleSets",
+	    "name":"[variables('spapublicVssName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "dependsOn":[
+		"storageLoop",
+		"[concat('Microsoft.Storage/storageAccounts/', variables('diagnosticsStorageAccountName'))]",
+		"[concat('Microsoft.Network/loadBalancers/', variables('spapublicLoadBalancerName'))]",
+		"[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+	    ],
+	    "sku":{
+		"name":"[parameters('vmSku')]",
+		"tier":"Standard",
+		"capacity":"[parameters('instanceCount')]"
+	    },
+	    "properties":{
+		"upgradePolicy":{
+		    "mode":"Manual"
+		},
+		"virtualMachineProfile":{
+		    "storageProfile":{
+			"osDisk":{
+			    "vhdContainers":[
+				"[concat('https://', variables('sapublicuniqueStringArray')[0], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('sapublicuniqueStringArray')[1], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('sapublicuniqueStringArray')[2], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('sapublicuniqueStringArray')[3], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('sapublicuniqueStringArray')[4], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]"
+			    ],
+			    "name":"[variables('osDiskName')]",
+			    "caching":"ReadOnly",
+			    "createOption":"FromImage"
+			},
+			"imageReference":"[variables('imageReference')]"
+		    },
+		    "osProfile":{
+			"computerNamePrefix":"[variables('namingInfix')]",
+			"adminUsername":"[parameters('adminUsername')]",
+			"adminPassword":"[parameters('adminPassword')]"
+		    },
+		    "networkProfile":{
+			"networkInterfaceConfigurations":[
+			    {
+				"name":"[variables('spapublicNicName')]",
+				"properties":{
+				    "primary":"true",
+				    "ipConfigurations":[
+					{
+					    "name":"[variables('spapublicIpConfigName')]",
+					    "properties":{
+						"subnet":{
+						    "id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'), '/subnets/', variables('spapublicSubnetName'))]"
+						},
+						"loadBalancerBackendAddressPools":[
+						    {
+							"id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/backendAddressPools/', variables('spapublicbePoolName'))]"
+						    }
+						],
+						"loadBalancerInboundNatPools":[
+						    {
+							"id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/inboundNatPools/', variables('spapublicNatPoolName'))]"
+						    }
+						]
+					    }
+					}
+				    ]
+				}
+			    }
+			]
+		    },
+		    "extensionProfile": {
+			"extensions" : [
+			    {
+				"name": "Microsoft.Insights.VMDiagnosticsSettings",
+				"properties": {
+				    "publisher": "Microsoft.Azure.Diagnostics",
+				    "type": "IaaSDiagnostics",
+				    "typeHandlerVersion": "1.5",
+				    "autoUpgradeMinorVersion": true,
+				    "settings": {
+					"xmlCfg": "[base64(concat(variables('wadcfgxstart'),variables('wadmetricsresourceid'),variables('wadcfgxend')))]",
+					"storageAccount": "[variables('diagnosticsStorageAccountName')]"
+				    },
+				    "protectedSettings": {
+					"storageAccountName": "[variables('diagnosticsStorageAccountName')]",
+					"storageAccountKey": "[listkeys(variables('accountid'), '2015-05-01-preview').key1]",
+					"storageAccountEndPoint": "https://core.windows.net"
+				    }
+				}
+			    }
+			]
+		    }
+		}
+	    }
+	},
+    {
+	    "type":"Microsoft.Compute/virtualMachineScaleSets",
+	    "name":"[variables('spaUserVssName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "dependsOn":[
+		"storageLoop",
+		"[concat('Microsoft.Storage/storageAccounts/', variables('diagnosticsStorageAccountName'))]",
+		"[concat('Microsoft.Network/loadBalancers/', variables('spaUserLoadBalancerName'))]",
+		"[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+	    ],
+	    "sku":{
+		"name":"[parameters('vmSku')]",
+		"tier":"Standard",
+		"capacity":"[parameters('instanceCount')]"
+	    },
+	    "properties":{
+		"upgradePolicy":{
+		    "mode":"Manual"
+		},
+		"virtualMachineProfile":{
+		    "storageProfile":{
+			"osDisk":{
+			    "vhdContainers":[
+				"[concat('https://', variables('saUseruniqueStringArray')[0], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saUseruniqueStringArray')[1], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saUseruniqueStringArray')[2], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saUseruniqueStringArray')[3], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saUseruniqueStringArray')[4], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]"
+			    ],
+			    "name":"[variables('osDiskName')]",
+			    "caching":"ReadOnly",
+			    "createOption":"FromImage"
+			},
+			"imageReference":"[variables('imageReference')]"
+		    },
+		    "osProfile":{
+			"computerNamePrefix":"[variables('namingInfix')]",
+			"adminUsername":"[parameters('adminUsername')]",
+			"adminPassword":"[parameters('adminPassword')]"
+		    },
+		    "networkProfile":{
+			"networkInterfaceConfigurations":[
+			    {
+				"name":"[variables('spaUserNicName')]",
+				"properties":{
+				    "primary":"true",
+				    "ipConfigurations":[
+					{
+					    "name":"[variables('spaUserIpConfigName')]",
+					    "properties":{
+						"subnet":{
+						    "id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'), '/subnets/', variables('spaUserSubnetName'))]"
+						},
+						"loadBalancerBackendAddressPools":[
+						    {
+							"id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/backendAddressPools/', variables('spaUserbePoolName'))]"
+						    }
+						],
+						"loadBalancerInboundNatPools":[
+						    {
+							"id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/inboundNatPools/', variables('spaUserNatPoolName'))]"
+						    }
+						]
+					    }
+					}
+				    ]
+				}
+			    }
+			]
+		    },
+		    "extensionProfile": {
+			"extensions" : [
+			    {
+				"name": "Microsoft.Insights.VMDiagnosticsSettings",
+				"properties": {
+				    "publisher": "Microsoft.Azure.Diagnostics",
+				    "type": "IaaSDiagnostics",
+				    "typeHandlerVersion": "1.5",
+				    "autoUpgradeMinorVersion": true,
+				    "settings": {
+					"xmlCfg": "[base64(concat(variables('wadcfgxstart'),variables('wadmetricsresourceid'),variables('wadcfgxend')))]",
+					"storageAccount": "[variables('diagnosticsStorageAccountName')]"
+				    },
+				    "protectedSettings": {
+					"storageAccountName": "[variables('diagnosticsStorageAccountName')]",
+					"storageAccountKey": "[listkeys(variables('accountid'), '2015-05-01-preview').key1]",
+					"storageAccountEndPoint": "https://core.windows.net"
+				    }
+				}
+			    }
+			]
+		    }
+		}
+	    }
+	},
+    {
+	    "type":"Microsoft.Compute/virtualMachineScaleSets",
+	    "name":"[variables('spaAdminVssName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "dependsOn":[
+		"storageLoop",
+		"[concat('Microsoft.Storage/storageAccounts/', variables('diagnosticsStorageAccountName'))]",
+		"[concat('Microsoft.Network/loadBalancers/', variables('spaAdminLoadBalancerName'))]",
+		"[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+	    ],
+	    "sku":{
+		"name":"[parameters('vmSku')]",
+		"tier":"Standard",
+		"capacity":"[parameters('instanceCount')]"
+	    },
+	    "properties":{
+		"upgradePolicy":{
+		    "mode":"Manual"
+		},
+		"virtualMachineProfile":{
+		    "storageProfile":{
+			"osDisk":{
+			    "vhdContainers":[
+				"[concat('https://', variables('saAdminuniqueStringArray')[0], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saAdminuniqueStringArray')[1], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saAdminuniqueStringArray')[2], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saAdminuniqueStringArray')[3], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saAdminuniqueStringArray')[4], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]"
+			    ],
+			    "name":"[variables('osDiskName')]",
+			    "caching":"ReadOnly",
+			    "createOption":"FromImage"
+			},
+			"imageReference":"[variables('imageReference')]"
+		    },
+		    "osProfile":{
+			"computerNamePrefix":"[variables('namingInfix')]",
+			"adminUsername":"[parameters('adminUsername')]",
+			"adminPassword":"[parameters('adminPassword')]"
+		    },
+		    "networkProfile":{
+			"networkInterfaceConfigurations":[
+			    {
+				"name":"[variables('spaAdminNicName')]",
+				"properties":{
+				    "primary":"true",
+				    "ipConfigurations":[
+					{
+					    "name":"[variables('spaAdminIpConfigName')]",
+					    "properties":{
+						"subnet":{
+						    "id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'), '/subnets/', variables('spaAdminSubnetName'))]"
+						},
+						"loadBalancerBackendAddressPools":[
+						    {
+							"id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/backendAddressPools/', variables('spaAdminbePoolName'))]"
+						    }
+						],
+						"loadBalancerInboundNatPools":[
+						    {
+							"id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/inboundNatPools/', variables('spaAdminNatPoolName'))]"
+						    }
+						]
+					    }
+					}
+				    ]
+				}
+			    }
+			]
+		    },
+		    "extensionProfile": {
+			"extensions" : [
+			    {
+				"name": "Microsoft.Insights.VMDiagnosticsSettings",
+				"properties": {
+				    "publisher": "Microsoft.Azure.Diagnostics",
+				    "type": "IaaSDiagnostics",
+				    "typeHandlerVersion": "1.5",
+				    "autoUpgradeMinorVersion": true,
+				    "settings": {
+					"xmlCfg": "[base64(concat(variables('wadcfgxstart'),variables('wadmetricsresourceid'),variables('wadcfgxend')))]",
+					"storageAccount": "[variables('diagnosticsStorageAccountName')]"
+				    },
+				    "protectedSettings": {
+					"storageAccountName": "[variables('diagnosticsStorageAccountName')]",
+					"storageAccountKey": "[listkeys(variables('accountid'), '2015-05-01-preview').key1]",
+					"storageAccountEndPoint": "https://core.windows.net"
+				    }
+				}
+			    }
+			]
+		    }
+		}
+	    }
+	},
+    {
+	    "type":"Microsoft.Compute/virtualMachineScaleSets",
+	    "name":"[variables('spaConsumerVssName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "dependsOn":[
+		"storageLoop",
+		"[concat('Microsoft.Storage/storageAccounts/', variables('diagnosticsStorageAccountName'))]",
+		"[concat('Microsoft.Network/loadBalancers/', variables('spaConsumerLoadBalancerName'))]",
+		"[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+	    ],
+	    "sku":{
+		"name":"[parameters('vmSku')]",
+		"tier":"Standard",
+		"capacity":"[parameters('instanceCount')]"
+	    },
+	    "properties":{
+		"upgradePolicy":{
+		    "mode":"Manual"
+		},
+		"virtualMachineProfile":{
+		    "storageProfile":{
+			"osDisk":{
+			    "vhdContainers":[
+				"[concat('https://', variables('saConsumeruniqueStringArray')[0], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saConsumeruniqueStringArray')[1], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saConsumeruniqueStringArray')[2], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saConsumeruniqueStringArray')[3], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saConsumeruniqueStringArray')[4], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]"
+			    ],
+			    "name":"[variables('osDiskName')]",
+			    "caching":"ReadOnly",
+			    "createOption":"FromImage"
+			},
+			"imageReference":"[variables('imageReference')]"
+		    },
+		    "osProfile":{
+			"computerNamePrefix":"[variables('namingInfix')]",
+			"adminUsername":"[parameters('adminUsername')]",
+			"adminPassword":"[parameters('adminPassword')]"
+		    },
+		    "networkProfile":{
+			"networkInterfaceConfigurations":[
+			    {
+				"name":"[variables('spaConsumerNicName')]",
+				"properties":{
+				    "primary":"true",
+				    "ipConfigurations":[
+					{
+					    "name":"[variables('spaConsumerIpConfigName')]",
+					    "properties":{
+						"subnet":{
+						    "id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'), '/subnets/', variables('spaConsumerSubnetName'))]"
+						},
+						"loadBalancerBackendAddressPools":[
+						    {
+							"id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/backendAddressPools/', variables('spaConsumerbePoolName'))]"
+						    }
+						],
+						"loadBalancerInboundNatPools":[
+						    {
+							"id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/inboundNatPools/', variables('spaConsumerNatPoolName'))]"
+						    }
+						]
+					    }
+					}
+				    ]
+				}
+			    }
+			]
+		    },
+		    "extensionProfile": {
+			"extensions" : [
+			    {
+				"name": "Microsoft.Insights.VMDiagnosticsSettings",
+				"properties": {
+				    "publisher": "Microsoft.Azure.Diagnostics",
+				    "type": "IaaSDiagnostics",
+				    "typeHandlerVersion": "1.5",
+				    "autoUpgradeMinorVersion": true,
+				    "settings": {
+					"xmlCfg": "[base64(concat(variables('wadcfgxstart'),variables('wadmetricsresourceid'),variables('wadcfgxend')))]",
+					"storageAccount": "[variables('diagnosticsStorageAccountName')]"
+				    },
+				    "protectedSettings": {
+					"storageAccountName": "[variables('diagnosticsStorageAccountName')]",
+					"storageAccountKey": "[listkeys(variables('accountid'), '2015-05-01-preview').key1]",
+					"storageAccountEndPoint": "https://core.windows.net"
+				    }
+				}
+			    }
+			]
+		    }
+		}
+	    }
+	},
+    {
+	    "type":"Microsoft.Compute/virtualMachineScaleSets",
+	    "name":"[variables('spaLoginVssName')]",
+	    "location":"[parameters('resourceLocation')]",
+	    "apiVersion":"[variables('apiVersion')]",
+	    "dependsOn":[
+		"storageLoop",
+		"[concat('Microsoft.Storage/storageAccounts/', variables('diagnosticsStorageAccountName'))]",
+		"[concat('Microsoft.Network/loadBalancers/', variables('spaLoginLoadBalancerName'))]",
+		"[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+	    ],
+	    "sku":{
+		"name":"[parameters('vmSku')]",
+		"tier":"Standard",
+		"capacity":"[parameters('instanceCount')]"
+	    },
+	    "properties":{
+		"upgradePolicy":{
+		    "mode":"Manual"
+		},
+		"virtualMachineProfile":{
+		    "storageProfile":{
+			"osDisk":{
+			    "vhdContainers":[
+				"[concat('https://', variables('saLoginuniqueStringArray')[0], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saLoginuniqueStringArray')[1], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saLoginuniqueStringArray')[2], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saLoginuniqueStringArray')[3], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]",
+				"[concat('https://', variables('saLoginuniqueStringArray')[4], variables('newStorageAccountSuffix'), '.blob.core.windows.net/', variables('vhdContainerName'))]"
+			    ],
+			    "name":"[variables('osDiskName')]",
+			    "caching":"ReadOnly",
+			    "createOption":"FromImage"
+			},
+			"imageReference":"[variables('imageReference')]"
+		    },
+		    "osProfile":{
+			"computerNamePrefix":"[variables('namingInfix')]",
+			"adminUsername":"[parameters('adminUsername')]",
+			"adminPassword":"[parameters('adminPassword')]"
+		    },
+		    "networkProfile":{
+			"networkInterfaceConfigurations":[
+			    {
+				"name":"[variables('spaLoginNicName')]",
+				"properties":{
+				    "primary":"true",
+				    "ipConfigurations":[
+					{
+					    "name":"[variables('spaLoginIpConfigName')]",
+					    "properties":{
+						"subnet":{
+						    "id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'), '/subnets/', variables('spaLoginSubnetName'))]"
+						},
+						"loadBalancerBackendAddressPools":[
+						    {
+							"id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/backendAddressPools/', variables('spaLoginbePoolName'))]"
+						    }
+						],
+						"loadBalancerInboundNatPools":[
+						    {
+							"id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/inboundNatPools/', variables('spaLoginNatPoolName'))]"
+						    }
+						]
+					    }
+					}
+				    ]
+				}
+			    }
+			]
+		    },
+		    "extensionProfile": {
+			"extensions" : [
+			    {
+				"name": "Microsoft.Insights.VMDiagnosticsSettings",
+				"properties": {
+				    "publisher": "Microsoft.Azure.Diagnostics",
+				    "type": "IaaSDiagnostics",
+				    "typeHandlerVersion": "1.5",
+				    "autoUpgradeMinorVersion": true,
+				    "settings": {
+					"xmlCfg": "[base64(concat(variables('wadcfgxstart'),variables('wadmetricsresourceid'),variables('wadcfgxend')))]",
+					"storageAccount": "[variables('diagnosticsStorageAccountName')]"
+				    },
+				    "protectedSettings": {
+					"storageAccountName": "[variables('diagnosticsStorageAccountName')]",
+					"storageAccountKey": "[listkeys(variables('accountid'), '2015-05-01-preview').key1]",
+					"storageAccountEndPoint": "https://core.windows.net"
+				    }
+				}
+			    }
+			]
+		    }
+		}
+	    }
+	},
+
+	{
+	    "type": "Microsoft.Insights/autoscaleSettings",
+	    "apiVersion": "2015-04-01",
+	    "name": "autoscalewad",
+	    "location":"[parameters('resourceLocation')]",
+	    "dependsOn": [
+		"[concat('Microsoft.Compute/virtualMachineScaleSets/', variables('namingInfix'))]"
+	    ],
+	    "properties": {
+		"name": "autoscalewad",
+		"targetResourceUri":"[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('namingInfix'))]",
+		"enabled": true,
+		"profiles":[
+		    {
+			"name":"Profile1",
+			"capacity":{
+			    "minimum":"1",
+			    "maximum":"10",
+			    "default":"1"
+			},
+			"rules":[
+			    {
+				"metricTrigger":{
+				    "metricName":"\\Processor(_Total)\\% Processor Time",
+				    "metricNamespace":"",
+				    "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('namingInfix'))]",
+				    "timeGrain":"PT1M",
+				    "statistic":"Average",
+				    "timeWindow":"PT5M",
+				    "timeAggregation":"Average",
+				    "operator":"GreaterThan",
+				    "threshold":50.0
+				},
+				"scaleAction":{
+				    "direction":"Increase",
+				    "type":"ChangeCount",
+				    "value":"1",
+				    "cooldown":"PT5M"
+				}
+			    },
+			    {
+		              "metricTrigger": {
+		                "metricName": "\\Processor(_Total)\\% Processor Time",
+		                "metricNamespace": "",
+		                "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('namingInfix'))]",
+		                "timeGrain": "PT1M",
+		                "statistic": "Average",
+		                "timeWindow": "PT5M",
+		                "timeAggregation": "Average",
+		                "operator": "LessThan",
+		                "threshold": 30.0
+		              },
+		              "scaleAction": {
+		                "direction": "Decrease",
+		                "type": "ChangeCount",
+		                "value": "1",
+		                "cooldown": "PT5M"
+		              }
+		            }
+			]
+		    }
+		]
+	    }
+	},
+    {
+	    "type": "Microsoft.Insights/autoscaleSettings",
+	    "apiVersion": "2015-04-01",
+	    "name": "spapublicautoscalewad",
+	    "location":"[parameters('resourceLocation')]",
+	    "dependsOn": [
+		"[concat('Microsoft.Compute/virtualMachineScaleSets/', variables('namingInfix'))]"
+	    ],
+	    "properties": {
+		"name": "autoscalewad",
+		"targetResourceUri":"[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('namingInfix'))]",
+		"enabled": true,
+		"profiles":[
+		    {
+			"name":"Profile1",
+			"capacity":{
+			    "minimum":"1",
+			    "maximum":"10",
+			    "default":"1"
+			},
+			"rules":[
+			    {
+				"metricTrigger":{
+				    "metricName":"\\Processor(_Total)\\% Processor Time",
+				    "metricNamespace":"",
+				    "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('namingInfix'))]",
+				    "timeGrain":"PT1M",
+				    "statistic":"Average",
+				    "timeWindow":"PT5M",
+				    "timeAggregation":"Average",
+				    "operator":"GreaterThan",
+				    "threshold":50.0
+				},
+				"scaleAction":{
+				    "direction":"Increase",
+				    "type":"ChangeCount",
+				    "value":"1",
+				    "cooldown":"PT5M"
+				}
+			    },
+			    {
+		              "metricTrigger": {
+		                "metricName": "\\Processor(_Total)\\% Processor Time",
+		                "metricNamespace": "",
+		                "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('namingInfix'))]",
+		                "timeGrain": "PT1M",
+		                "statistic": "Average",
+		                "timeWindow": "PT5M",
+		                "timeAggregation": "Average",
+		                "operator": "LessThan",
+		                "threshold": 30.0
+		              },
+		              "scaleAction": {
+		                "direction": "Decrease",
+		                "type": "ChangeCount",
+		                "value": "1",
+		                "cooldown": "PT5M"
+		              }
+		            }
+			]
+		    }
+		]
+	    }
+	}
+    ]
+}
