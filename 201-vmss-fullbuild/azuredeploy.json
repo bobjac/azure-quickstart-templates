@@ -251,9 +251,9 @@
     
     "spapublicVssName": "spapublicVss",
     "spaUserVssName": "spaUserVss",
-    "spaAdminVss": "spaAdminVss",
-    "spaConsumerVss": "spaConsumerVss",
-    "spaLoginVss": "spaLoginVss",
+    "spaAdminVssName": "spaAdminVss",
+    "spaConsumerVssName": "spaConsumerVss",
+    "spaLoginVssName": "spaLoginVss",
     
     
     "osType":{
