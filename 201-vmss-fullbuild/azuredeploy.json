@@ -57,35 +57,35 @@
         "metadata":{
             "description":"String used name the Spa Vm Scale Set"
         },
-        "mexLength":9
+        "maxLength":9
     },
     "spaUserVmssName":{
         "type":"string",
         "metadata":{
             "description":"String used name the Spa Vm Scale Set"
         },
-        "mexLength":9
+        "maxLength":9
     },
     "spaAdminVmssName":{
         "type":"string",
         "metadata":{
             "description":"String used name the Spa Admin Vm Scale Set"
         },
-        "mexLength":9
+        "maxLength":9
     },
     "spaConsumerPortalVmssName":{
         "type":"string",
         "metadata":{
             "description":"String used name the Spa Consumer Portal Vm Scale Set"
         },
-        "mexLength":9
+        "maxLength":9
     },
     "spaLoginVmssName":{
         "type":"string",
         "metadata":{
             "description":"String used name the Spa Login Vm Scale Set"
         },
-        "mexLength":9
+        "maxLength":9
     },
     
 	"instanceCount":{
