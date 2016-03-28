@@ -338,7 +338,7 @@
         },
         "parameters": {
           "resourceLocation": {
-            "value": "[variables('location')]"
+            "value": "[parameters('location')]"
           },
           "vmSku": {
             "value": "[variables('tshirtSizeSmall').vmSizeMember]"
