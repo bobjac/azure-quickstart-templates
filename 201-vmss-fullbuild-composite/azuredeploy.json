@@ -33,6 +33,18 @@
         "description": "Location where resources will be provisioned"
       }
     },
+    "windowsOSVersion": {
+	    "type": "string",
+	    "defaultValue": "2012-R2-Datacenter",
+	    "allowedValues": [
+		"2008-R2-SP1",
+		"2012-Datacenter",
+		"2012-R2-Datacenter"
+	    ],
+	    "metadata": {
+		"description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version. Allowed values: 2008-R2-SP1, 2012-Datacenter, 2012-R2-Datacenter."
+	    }
+	},
     "virtualNetworkName": {
       "type": "string",
       "defaultValue": "vmssCompVirtNet",
@@ -231,6 +243,7 @@
     "jumpboxTemplateEnabled": "jumpbox-resources.json",
     "jumpboxTemplateDisabled": "empty-resources.json",
     "sharedTemplateUrl": "[concat(variables('templateBaseUrl'), 'shared-resources.json')]",
+    "frontEndSpaTemplateUrl": "[concat(variables('templateBaseUrl'), 'vmss.json')]",
     "jumpboxTemplateUrl": "[concat(variables('templateBaseUrl'), variables(concat('jumpboxTemplate', parameters('jumpbox'))))]",
     "commonSettings": {
       "availabilitySetName": "redisAvailSet",
@@ -309,6 +322,44 @@
           },
           "networkSettings": {
             "value": "[variables('networkSettings')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "spaFrontEnd",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('frontEndSpaTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "resourceLocation": {
+            "value": "[variables('location')]"
+          },
+          "vmSku": {
+            "value": "[variables('tshirtSizeSmall').vmSizeMember]"
+          },
+          "windowsOSVersion": {
+            "value": "[variables('windowsOSVersion')]"
+          },
+          "vmssName": {
+              "value": "spaFrontEnd"
+          },
+          "instanceCount": {
+              "value": 3
+          },
+          "adminUsername": {
+              "value": "[variables('adminUsername')]"
+          },
+          "adminPassword": {
+              "value": "[variables('adminPassword')]"
+          },
+          "vmssVnet": {
+              "value": "[variables('networkSettings').virtualNetworkName]"
           }
         }
       }
