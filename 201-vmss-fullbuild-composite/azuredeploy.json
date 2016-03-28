@@ -103,7 +103,48 @@
         "description": "Address space for the virtual network subnet"
       }
     },
-    
+    "cachingSubnetName": {
+      "type": "string",
+      "defaultValue": "cachingSubnet",
+      "metadata": {
+        "description": "Subnet name for the virtual network that resources will be provisioned in to"
+      }
+    },
+    "cachingSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.4.0/24",
+      "metadata": {
+        "description": "Address space for the virtual network subnet"
+      }
+    },
+    "ictSubnetName": {
+      "type": "string",
+      "defaultValue": "ictSubnet",
+      "metadata": {
+        "description": "Subnet name for the virtual network that resources will be provisioned in to"
+      }
+    },
+    "ictSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.5.0/24",
+      "metadata": {
+        "description": "Address space for the virtual network subnet"
+      }
+    },
+    "sqlSubnetName": {
+      "type": "string",
+      "defaultValue": "sqlSubnet",
+      "metadata": {
+        "description": "Subnet name for the virtual network that resources will be provisioned in to"
+      }
+    },
+    "sqlSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.6.0/24",
+      "metadata": {
+        "description": "Address space for the virtual network subnet"
+      }
+    },
     "nodeAddressPrefix": {
       "type": "string",
       "defaultValue": "10.0.0.1",
@@ -211,10 +252,19 @@
       "rulesSubnetPrefix": "[parameters('rulesSubnetPrefix')]",
       "domainSubnetName": "[parameters('domainSubnetName')]",
       "domainSubnetPrefix": "[parameters('domainSubnetPrefix')]",
+      "cachingSubnetName": "[parameters('cachingSubnetName')]",
+      "cachingSubnetPrefix": "[parameters('cachingSubnetPrefix')]",
+      "ictSubnetName": "[parameters('ictSubnetName')]",
+      "ictSubnetPrefix": "[parameters('ictSubnetPrefix')]",
+      "sqlSubnetName": "[parameters('sqlSubnetName')]",
+      "sqlSubnetPrefix": "[parameters('sqlSubnetPrefix')]",
       "frontEndSubnetRef": "[concat(variables('vnetID'), '/subnets/', parameters('frontEndSubnetName'))]",
       "busSvcSubnetRef": "[concat(variables('vnetID'), '/subnets/', parameters('busSvcSubnetName'))]",
       "rulesSubnetRef": "[concat(variables('vnetID'), '/subnets/', parameters('rulesSubnetName'))]",
       "domainSubnetRef": "[concat(variables('vnetID'), '/subnets/', parameters('domainSubnetName'))]",
+      "cachingSubnetRef": "[concat(variables('vnetID'), '/subnets/', parameters('cachingSubnetName'))]",
+      "ictSubnetRef": "[concat(variables('vnetID'), '/subnets/', parameters('ictSubnetName'))]",
+      "sqlSubnetRef": "[concat(variables('vnetID'), '/subnets/', parameters('sqlSubnetName'))]",
       "machineIpPrefix": "[parameters('nodeAddressPrefix')]"
     },
     "machineSettings": {

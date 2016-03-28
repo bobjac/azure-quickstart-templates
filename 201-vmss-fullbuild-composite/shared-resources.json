@@ -57,6 +57,18 @@
             "properties": {
               "addressPrefix": "[parameters('networkSettings').domainSubnetPrefix]"
             }
+          },
+          {
+            "name": "[parameters('networkSettings').ictSubnetName]",
+            "properties": {
+              "addressPrefix": "[parameters('networkSettings').ictSubnetPrefix]"
+            }
+          },
+          {
+            "name": "[parameters('networkSettings').sqlSubnetName]",
+            "properties": {
+              "addressPrefix": "[parameters('networkSettings').sqlSubnetPrefix]"
+            }
           }
         ]
       }
