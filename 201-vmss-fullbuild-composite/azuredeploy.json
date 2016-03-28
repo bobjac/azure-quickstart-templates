@@ -35,7 +35,7 @@
     },
     "virtualNetworkName": {
       "type": "string",
-      "defaultValue": "redisVirtNet",
+      "defaultValue": "vmssCompVirtNet",
       "metadata": {
         "description": "The arbitrary name of the virtual network provisioned for the Redis cluster"
       }
@@ -47,20 +47,63 @@
         "description": "The network address space for the virtual network"
       }
     },
-    "subnetName": {
+    "frontEndSubnetName": {
       "type": "string",
-      "defaultValue": "redisSubnet1",
+      "defaultValue": "frontEndSubnet",
       "metadata": {
         "description": "Subnet name for the virtual network that resources will be provisioned in to"
       }
     },
-    "subnetPrefix": {
+    "frontEndSubnetPrefix": {
       "type": "string",
       "defaultValue": "10.0.0.0/24",
       "metadata": {
         "description": "Address space for the virtual network subnet"
       }
     },
+    "busSvcSubnetName": {
+      "type": "string",
+      "defaultValue": "busSvcSubnet",
+      "metadata": {
+        "description": "Subnet name for the virtual network that resources will be provisioned in to"
+      }
+    },
+    "busSvcSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24",
+      "metadata": {
+        "description": "Address space for the virtual network subnet"
+      }
+    },
+    "rulesSubnetName": {
+      "type": "string",
+      "defaultValue": "rulesSubnet",
+      "metadata": {
+        "description": "Subnet name for the virtual network that resources will be provisioned in to"
+      }
+    },
+    "rulesSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.2.0/24",
+      "metadata": {
+        "description": "Address space for the virtual network subnet"
+      }
+    },
+    "domainSubnetName": {
+      "type": "string",
+      "defaultValue": "domainSubnet",
+      "metadata": {
+        "description": "Subnet name for the virtual network that resources will be provisioned in to"
+      }
+    },
+    "domainSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.3.0/24",
+      "metadata": {
+        "description": "Address space for the virtual network subnet"
+      }
+    },
+    
     "nodeAddressPrefix": {
       "type": "string",
       "defaultValue": "10.0.0.1",
@@ -160,9 +203,18 @@
     "networkSettings": {
       "virtualNetworkName": "[parameters('virtualNetworkName')]",
       "addressPrefix": "[parameters('addressPrefix')]",
-      "subnetName": "[parameters('subnetName')]",
-      "subnetPrefix": "[parameters('subnetPrefix')]",
-      "subnetRef": "[concat(variables('vnetID'), '/subnets/', parameters('subnetName'))]",
+      "frontEndSubnetName": "[parameters('frontEndSubnetName')]",
+      "frontEndSubnetPrefix": "[parameters('frontEndSubnetPrefix')]",
+      "busSvcSubnetName": "[parameters('busSvcSubnetName')]",
+      "busSvcSubnetPrefix": "[parameters('busSvcSubnetPrefix')]",
+      "rulesSubnetName": "[parameters('rulesSubnetName')]",
+      "rulesSubnetPrefix": "[parameters('rulesSubnetPrefix')]",
+      "domainSubnetName": "[parameters('domainSubnetName')]",
+      "domainSubnetPrefix": "[parameters('domainSubnetPrefix')]",
+      "frontEndSubnetRef": "[concat(variables('vnetID'), '/subnets/', parameters('frontEndSubnetName'))]",
+      "busSvcSubnetRef": "[concat(variables('vnetID'), '/subnets/', parameters('busSvcSubnetName'))]",
+      "rulesSubnetRef": "[concat(variables('vnetID'), '/subnets/', parameters('rulesSubnetName'))]",
+      "domainSubnetRef": "[concat(variables('vnetID'), '/subnets/', parameters('domainSubnetName'))]",
       "machineIpPrefix": "[parameters('nodeAddressPrefix')]"
     },
     "machineSettings": {

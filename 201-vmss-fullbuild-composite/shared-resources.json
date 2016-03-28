@@ -35,9 +35,27 @@
         },
         "subnets": [
           {
-            "name": "[parameters('networkSettings').subnetName]",
+            "name": "[parameters('networkSettings').frontEndSubnetName]",
             "properties": {
-              "addressPrefix": "[parameters('networkSettings').subnetPrefix]"
+              "addressPrefix": "[parameters('networkSettings').frontEndSubnetPrefix]"
+            }
+          },
+          {
+            "name": "[parameters('networkSettings').busSvcSubnetName]",
+            "properties": {
+              "addressPrefix": "[parameters('networkSettings').busSvcSubnetPrefix]"
+            }
+          },
+          {
+            "name": "[parameters('networkSettings').rulesSubnetName]",
+            "properties": {
+              "addressPrefix": "[parameters('networkSettings').rulesSubnetPrefix]"
+            }
+          },
+          {
+            "name": "[parameters('networkSettings').domainSubnetName]",
+            "properties": {
+              "addressPrefix": "[parameters('networkSettings').domainSubnetPrefix]"
             }
           }
         ]
