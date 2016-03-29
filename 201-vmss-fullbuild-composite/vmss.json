@@ -118,7 +118,7 @@
     
 	"virtualNetworkName":"[parameters('vmssVnet')]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkSettings').virtualNetworkName)]",
-    "subnetRef": "[concat(variables('vnetID'), '/subnets/, parameters('networkSettings').frontEndSubnetName')]",
+    "subnetRef": "[concat(variables('vnetID'), '/subnets/', parameters('networkSettings').frontEndSubnetName)]",
 	
     
     "publicIPAddressName":"[concat(variables('namingInfix'), 'pip')]",
