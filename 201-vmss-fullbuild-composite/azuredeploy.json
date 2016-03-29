@@ -347,7 +347,7 @@
             "value": "[parameters('windowsOSVersion')]"
           },
           "vmssName": {
-              "value": "spaFrontEnd"
+              "value": "spaFE"
           },
           "instanceCount": {
               "value": 3
