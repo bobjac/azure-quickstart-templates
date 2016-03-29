@@ -90,6 +90,12 @@
       "metadata": {
         "description": "The network address space for the virtual network"
       }
+    },
+    "networkSettings": {
+      "type": "object",
+      "metadata": {
+        "Description": "Network settings object"
+      }
     }
     },
     "variables":{
@@ -228,7 +234,7 @@
 		"storageLoop",
 		"[concat('Microsoft.Storage/storageAccounts/', variables('diagnosticsStorageAccountName'))]",
 		"[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]",
-		"[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkSettings').virtualNetworkName)]"
 	    ],
 	    "sku":{
 		"name":"[parameters('vmSku')]",

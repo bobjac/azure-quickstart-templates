@@ -366,6 +366,9 @@
           },
           "subnetPrefix": {
               "value": "variables('networkSettings').frontEndSubnetPrefix"
+          },
+          "networkSettings": {
+            "value": "[variables('networkSettings')]"
           }
         }
       }
