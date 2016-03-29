@@ -117,6 +117,8 @@
 	"subnetPrefix":"parameters('subnetPrefix'),",
     
 	"virtualNetworkName":"[parameters('vmssVnet')]",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkSettings').virtualNetworkName)]",
+    "subnetRef": "[concat(variables('vnetID'), '/subnets/, parameters('networkSettings').frontEndSubnetName')]",
 	
     
     "publicIPAddressName":"[concat(variables('namingInfix'), 'pip')]",
@@ -277,7 +279,7 @@
 					    "name":"[variables('ipConfigName')]",
 					    "properties":{
 						"subnet":{
-						    "id":"[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'), '/subnets/', variables('subnetName'))]"
+						    "id":"[variables('subnetRef')]"
 						},
 						"loadBalancerBackendAddressPools":[
 						    {
