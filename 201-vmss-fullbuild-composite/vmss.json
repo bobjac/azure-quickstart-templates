@@ -227,6 +227,7 @@
 		]
 	    }
 	},
+    
 	{
 	    "type":"Microsoft.Compute/virtualMachineScaleSets",
 	    "name":"[variables('namingInfix')]",
