@@ -344,7 +344,7 @@
             "value": "[variables('tshirtSizeSmall').vmSizeMember]"
           },
           "windowsOSVersion": {
-            "value": "[variables('windowsOSVersion')]"
+            "value": "[parameters('windowsOSVersion')]"
           },
           "vmssName": {
               "value": "spaFrontEnd"
@@ -353,10 +353,10 @@
               "value": 3
           },
           "adminUsername": {
-              "value": "[variables('adminUsername')]"
+              "value": "[parameters('adminUsername')]"
           },
           "adminPassword": {
-              "value": "[variables('adminPassword')]"
+              "value": "[parameters('adminPassword')]"
           },
           "vmssVnet": {
               "value": "[variables('networkSettings').virtualNetworkName]"
