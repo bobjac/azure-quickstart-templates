@@ -235,8 +235,7 @@
 	    "dependsOn":[
 		"storageLoop",
 		"[concat('Microsoft.Storage/storageAccounts/', variables('diagnosticsStorageAccountName'))]",
-		"[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkSettings').virtualNetworkName)]"
+		"[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]"
 	    ],
 	    "sku":{
 		"name":"[parameters('vmSku')]",
