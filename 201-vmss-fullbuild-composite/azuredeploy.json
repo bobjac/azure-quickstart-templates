@@ -360,6 +360,12 @@
           },
           "vmssVnet": {
               "value": "[variables('networkSettings').virtualNetworkName]"
+          },
+          "addressPrefix": {
+              "value": "variables('networkSettings').addressPrefix"
+          },
+          "subnetPrefix": {
+              "value": "variables('networkSettings').frontEndSubnetPrefix"
           }
         }
       }
