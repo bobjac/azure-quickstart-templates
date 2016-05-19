@@ -103,7 +103,7 @@
   "variables": {
     "vnetID": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
     "subnet1Ref": "[concat(variables('vnetID'),'/subnets/', parameters('subnet1Name'))]",
-    "osDiskVhdName": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds/',variables('vmName'),'osDisk.vhd')]"
+    "osDiskVhdName": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds/',parameters('vmName'),'osDisk.vhd')]"
   },
   "resources": [
     {
