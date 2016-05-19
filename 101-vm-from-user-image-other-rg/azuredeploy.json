@@ -71,7 +71,7 @@
     "subnet1Name": "Subnet-1",
     "subnet1Prefix": "10.0.0.0/24",
     "publicIPAddressType": "Dynamic",
-    "vnetID": "[resourceId(parameters('vnetResourceGroupName'),Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
+    "vnetID": "[resourceId(parameters('vnetResourceGroupName'),'Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnet1Ref": "[concat(variables('vnetID'),'/subnets/',variables('subnet1Name'))]",
     "osDiskVhdName": "[concat('http://',parameters('userImageStorageAccountName'),'.blob.core.windows.net/vhds/',variables('vmName'),'osDisk.vhd')]",
     "apiVersion": "2015-06-15"
