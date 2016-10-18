@@ -321,7 +321,7 @@
                   		"autoUpgradeMinorVersion": true,
 						"settings": {
 							"fileUris": [
-								"[variables('customScriptExtensionPath')]"
+								"[parameters('customScriptExtensionPath')]"
 							],
 						"commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File vmextension.ps1"	
 						}
