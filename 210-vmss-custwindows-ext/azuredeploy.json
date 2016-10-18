@@ -315,13 +315,12 @@
 				{
 					"name": "Microsoft.Azure.CustomExtension",
 					"properties": {
-						"publisher": "Microsoft.Azure.Extensions",
-						"type": "CustomScript",
-                  		"typeHandlerVersion": "2.0",
-                  		"autoUpgradeMinorVersion": true,
+						"publisher": "Microsoft.Compute",
+						"type": "CustomScriptExtension",
+                  		"typeHandlerVersion": "1.7",
 						"settings": {
 							"fileUris": [
-								"[parameters('customScriptExtensionPath')]"
+								"https://bobjacxerox.blob.core.windows.net/scripts/vmextension.ps1"
 							],
 						"commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File vmextension.ps1"	
 						}
