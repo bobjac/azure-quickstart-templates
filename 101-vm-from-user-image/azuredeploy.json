@@ -182,8 +182,8 @@
        	           "type": "CustomScriptExtension",
                      "typeHandlerVersion": "1.2",
                      "settings": {
-                         "fileUris": [ "[parameters('scriptFile')]" ],
-       	                  "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file ',parameters('scriptName'))]"
+                         "fileUris": [ "https://bobjacxerox.blob.core.windows.net/scripts/vmextension.ps1" ],
+       	                  "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File vmextension.ps1"
                      }
                  }
               }
