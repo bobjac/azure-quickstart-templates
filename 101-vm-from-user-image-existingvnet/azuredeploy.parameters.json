@@ -9,7 +9,7 @@
       "value": "Xerox!Admin!"
     },
     "userImageStorageAccountName": {
-      "value": "myStorageAccount"
+      "value": "xcmclonestorage"
     },
     "osDiskVhdUri": {
       "value": "http://ci21c7135add2.blob.core.windows.net/vhds/cid4b28112a1.vhd"

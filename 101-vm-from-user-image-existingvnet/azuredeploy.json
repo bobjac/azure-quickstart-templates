@@ -202,29 +202,29 @@
        	                  "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File vmextension.ps1"
                      }
                  }
+              },
+              {
+                "type": "extensions",
+                "name": "Microsoft.EnterpriseCloud.Monitoring",
+                "apiVersion": "[variables('apiVersion')]",
+                "location": "[resourceGroup().location]",
+                "dependsOn": [
+                  "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+                ],
+                "properties": {
+                  "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                  "type": "MicrosoftMonitoringAgent",
+                  "typeHandlerVersion": "1.0",
+                  "autoUpgradeMinorVersion": true,
+                  "settings": {
+                    "workspaceId": "[parameters('workspaceId')]"
+                  },
+                  "protectedSettings": {
+                    "workspaceKey": "[parameters('workspaceKey')]"
+                  }
+                }
               }
             ]
-    },
-    {
-      "type": "extensions",
-      "name": "Microsoft.EnterpriseCloud.Monitoring",
-      "apiVersion": "[variables('apiVersion')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-      ],
-      "properties": {
-        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
-        "type": "MicrosoftMonitoringAgent",
-        "typeHandlerVersion": "1.0",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "workspaceId": "[parameters('workspaceId')]"
-        },
-        "protectedSettings": {
-          "workspaceKey": "[parameters('workspaceKey')]"
-        }
-      }
     }
   ]
 }
