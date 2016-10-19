@@ -87,8 +87,8 @@
   },
   "variables": {
     "location": "[resourceGroup().location]",
-    "publicIPAddressName": "userImagePublicIP",
     "vmName": "[parameters('vmName')]",
+    "publicIPAddressName": "[concat(variables('vmName'), 'PIP')]",
     "virtualNetworkName": "[parameters('virtualNetworkName')]",
     "nicName": "[concat(variables('vmName'),'Nic')]",
     "addressPrefix": "10.0.0.0/16",
@@ -224,7 +224,7 @@
                   }
                 }
               }
-            ]
+       ]
     }
   ]
 }
