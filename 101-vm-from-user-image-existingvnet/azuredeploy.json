@@ -53,16 +53,28 @@
       "metadata": {
         "description": "The custom script file"
       }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "metadata": {
+        "description": "The virtual network name"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "The virtual network name"
+      }
     }
   },
   "variables": {
     "location": "[resourceGroup().location]",
     "publicIPAddressName": "userImagePublicIP",
     "vmName": "userImageVM",
-    "virtualNetworkName": "userImageVNET",
+    "virtualNetworkName": "parameters('virtualNetworkName')",
     "nicName": "userImageVMNic",
     "addressPrefix": "10.0.0.0/16",
-    "subnet1Name": "Subnet-1",
+    "subnet1Name": "parameters('subnetName')",
     "subnet1Prefix": "10.0.0.0/24",
     "publicIPAddressType": "Dynamic",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
@@ -81,27 +93,6 @@
         "dnsSettings": {
           "domainNameLabel": "[parameters('dnsLabelPrefix')]"
         }
-      }
-    },
-    {
-      "apiVersion": "[variables('apiVersion')]",
-      "type": "Microsoft.Network/virtualNetworks",
-      "name": "[variables('virtualNetworkName')]",
-      "location": "[variables('location')]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[variables('addressPrefix')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[variables('subnet1Name')]",
-            "properties": {
-              "addressPrefix": "[variables('subnet1Prefix')]"
-            }
-          }
-        ]
       }
     },
     {
