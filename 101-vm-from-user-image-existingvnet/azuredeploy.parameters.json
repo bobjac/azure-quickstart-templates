@@ -3,10 +3,10 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminUsername": {
-      "value": "username"
+      "value": "xcmadmin"
     },
     "adminPassword": {
-      "value": "password!"
+      "value": "Xerox!Admin!"
     },
     "userImageStorageAccountName": {
       "value": "myStorageAccount"
@@ -22,6 +22,24 @@
     },
     "vmSize": {
       "value": "Standard_D2"
+    },
+    "scriptFile": {
+      "value": "https://bobjacxerox.blob.core.windows.net/scripts/CreateUsersExtension.ps1"
+    },
+    "virtualNetworkName": {
+      "value": "XcmFarmResourceGroup-vnet"
+    },
+    "subnetName": {
+      "value": "default"
+    },
+    "vmName": {
+      "value": "xcmMachine"
+    },
+    "workspaceId": {
+      "value": "9718e0da-184a-4fc4-8f11-51c51cfaa0d3"
+    },
+    "workspaceKey": {
+      "value": "QslCNVy3JtBD988Heb8tohEKvWJTOolyvKgLYkjB605TmvMQAjEd9varYrtsQ7dlHm+7xXgbDyD9Ij3I9/RH1w=="
     }
   }
 }

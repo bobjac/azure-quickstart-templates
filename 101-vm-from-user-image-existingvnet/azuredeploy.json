@@ -65,21 +65,38 @@
       "metadata": {
         "description": "The virtual network name"
       }
+    },
+    "vmName": {
+      "type": "string",
+      "metadata": {
+        "description": "The virtual machine name"
+      }
+    },
+    "workspaceId": {
+      "type": "string",
+      "metadata": {
+        "description": "The OMS WorkspaceId"
+      }
+    },
+    "workspaceKey": {
+      "type": "string",
+      "metadata": {
+        "description": "The OMS WorkspaceKey"
+      }
     }
   },
   "variables": {
     "location": "[resourceGroup().location]",
     "publicIPAddressName": "userImagePublicIP",
-    "vmName": "userImageVM",
+    "vmName": "[parameters('vmName')]",
     "virtualNetworkName": "[parameters('virtualNetworkName')]",
-    "nicName": "userImageVMNic",
+    "nicName": "[concat(variables('vmName'),'Nic')]",
     "addressPrefix": "10.0.0.0/16",
     "subnet1Name": "[parameters('subnetName')]",
     "subnet1Prefix": "10.0.0.0/24",
     "publicIPAddressType": "Dynamic",
     "vnetID": "[resourceId('XcmFarmResourceGroup','Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/', parameters('subnetName'))]",
-
     "subnet1Ref": "[concat(variables('vnetID'),'/subnets/',variables('subnet1Name'))]",
     "osDiskVhdName": "[concat('http://',parameters('userImageStorageAccountName'),'.blob.core.windows.net/vhds/',variables('vmName'),'osDisk.vhd')]",
     "apiVersion": "2015-06-15"
@@ -187,6 +204,27 @@
                  }
               }
             ]
+    },
+    {
+      "type": "extensions",
+      "name": "Microsoft.EnterpriseCloud.Monitoring",
+      "apiVersion": "[variables('apiVersion')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+        "type": "MicrosoftMonitoringAgent",
+        "typeHandlerVersion": "1.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "workspaceId": "[parameters('workspaceId')]"
+        },
+        "protectedSettings": {
+          "workspaceKey": "[parameters('workspaceKey')]"
+        }
+      }
     }
   ]
 }
