@@ -47,6 +47,12 @@
       "metadata": {
         "description": "This is the size of your VM"
       }
+    },
+    "scriptFile": {
+      "type": "string",
+      "metadata": {
+        "description": "The custom script file"
+      }
     }
   },
   "variables": {
