@@ -198,8 +198,8 @@
        	           "type": "CustomScriptExtension",
                      "typeHandlerVersion": "1.2",
                      "settings": {
-                         "fileUris": [ "https://bobjacxerox.blob.core.windows.net/scripts/vmextension.ps1" ],
-       	                  "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File vmextension.ps1"
+                         "fileUris": [ "https://bobjacxerox.blob.core.windows.net/scripts/CreateUsersExtension.ps1" ],
+       	                  "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File CreateUsersExtension.ps1"
                      }
                  }
               },
