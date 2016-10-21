@@ -99,7 +99,8 @@
     "subnetRef": "[concat(variables('vnetID'),'/subnets/', parameters('subnetName'))]",
     "subnet1Ref": "[concat(variables('vnetID'),'/subnets/',variables('subnet1Name'))]",
     "osDiskVhdName": "[concat('http://',parameters('userImageStorageAccountName'),'.blob.core.windows.net/vhds/',variables('vmName'),'osDisk.vhd')]",
-    "apiVersion": "2015-06-15"
+    "apiVersion": "2015-06-15",
+    "addOms": "false"
   },
   "resources": [
     {
