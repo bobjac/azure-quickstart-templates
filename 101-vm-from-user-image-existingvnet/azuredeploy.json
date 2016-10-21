@@ -200,7 +200,7 @@
             "autoUpgradeMinorVersion": "true",
             "settings": {
                 "fileUris": [ 
-                  "https://bobjacxerox.blob.core.windows.net/scripts/vmextensions.ps1" 
+                  "https://xcmclonestorage.blob.core.windows.net/scripts/vmextension.ps1" 
                 ],
                 "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File vmextensions.ps1"
             }
