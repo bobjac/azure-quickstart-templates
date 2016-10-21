@@ -12,7 +12,7 @@
       "value": "xcmclonestorage"
     },
     "osDiskVhdUri": {
-      "value": "https://xcmclonestorage.blob.core.windows.net/images/xcm-bot-01201696235055.vhd"
+      "value": "https://xcmclonestorage.blob.core.windows.net/images/userImageVMosDisk.vhd"
     },
     "dnsLabelPrefix": {
       "value": "uniqueDNS"
