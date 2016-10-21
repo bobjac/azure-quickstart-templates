@@ -200,9 +200,9 @@
                      "autoUpgradeMinorVersion": true,
                      "settings": {
                          "fileUris": [ 
-                            "https://bobjacxerox.blob.core.windows.net/scripts/CreateUsersExtension.ps1" 
+                            "https://bobjacxerox.blob.core.windows.net/scripts/vmextensions.ps1" 
                          ],
-       	                 "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File CreateUsersExtension.ps1"
+       	                 "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File vmextensions.ps1"
                      }
                  }
               }
