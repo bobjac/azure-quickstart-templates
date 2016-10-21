@@ -52,22 +52,20 @@
         }
     },
     "variables": {
-        "conName": "bobjac53",
-
         "imagePublisher": "MicrosoftWindowsServer",
         "imageOffer": "WindowsServer",
         "OSDiskName": "osdiskforwindowssimple",
-        "nicName": "[variables('conName')]",
+        "nicName": "myVMNic",
         "addressPrefix": "10.0.0.0/16",
-        "subnetName": "default",
+        "subnetName": "Subnet",
         "subnetPrefix": "10.0.0.0/24",
         "storageAccountType": "Standard_LRS",
-        "publicIPAddressName": "[variables('conName')]",
+        "publicIPAddressName": "myPublicIP",
         "publicIPAddressType": "Dynamic",
         "vmStorageAccountContainerName": "vhds",
-        "vmName": "[variables('conName')]",
+        "vmName": "MyWindowsVM",
         "vmSize": "Standard_A2",
-        "virtualNetworkName": "XcmFarmResourceGroup-vnet",
+        "virtualNetworkName": "MyVNET",
         "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
         "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]"
     },
@@ -196,11 +194,9 @@
        	           "type": "CustomScriptExtension",
                      "typeHandlerVersion": "1.2",
                      "settings": {
-                        "fileUris": [ 
-                        "https://xcmclonestorage.blob.core.windows.net/scripts/vmextension.ps1" 
-                        ],
-                        "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File vmextensions.ps1"
-                     }       
+                         "fileUris": [ "[parameters('scriptFile')]" ],
+       	                  "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file ',parameters('scriptName'))]"
+                     }
                  }
               }
             ]
