@@ -200,9 +200,9 @@
             "autoUpgradeMinorVersion": "true",
             "settings": {
                 "fileUris": [ 
-                  "https://xcmclonestorage.blob.core.windows.net/scripts/vmextension.ps1" 
+                  "https://xcmclonestorage.blob.core.windows.net/scripts/CreateUsersExtension.ps1" 
                 ],
-                "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File vmextension.ps1"
+                "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File CreateUsersExtension.ps1"
             }
         }
     }
