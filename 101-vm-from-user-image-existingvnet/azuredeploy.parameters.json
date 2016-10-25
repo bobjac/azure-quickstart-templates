@@ -3,19 +3,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminUsername": {
-      "value": "xcmadmin"
+      "value": "bobjac"
     },
     "adminPassword": {
-      "value": "Xerox!Admin!"
+      "value": "AFw2hawabf16"
     },
     "userImageStorageAccountName": {
       "value": "xcmclonestorage"
     },
     "osDiskVhdUri": {
-      "value": "https://xcmclonestorage.blob.core.windows.net/images/userImageVMosDisk.vhd"
+      "value": "https://xcmclonestorage.blob.core.windows.net/cleanedimage2/userImageVMosDisk.vhd"
     },
     "dnsLabelPrefix": {
-      "value": "uniqueDNS"
+      "value": "bobjac62"
     },
     "osType": {
       "value": "Windows"
@@ -33,7 +33,7 @@
       "value": "default"
     },
     "vmName": {
-      "value": "xcmMachine"
+      "value": "bobjac62"
     },
     "workspaceId": {
       "value": "9718e0da-184a-4fc4-8f11-51c51cfaa0d3"
